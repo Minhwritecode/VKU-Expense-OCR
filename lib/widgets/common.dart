@@ -4,10 +4,13 @@ class _ChartCard extends StatelessWidget {
   const _ChartCard({required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 15),
-      child: child,
+  Widget build(BuildContext context) => SizedBox(
+    width: double.infinity,
+    child: Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 15),
+        child: child,
+      ),
     ),
   );
 }

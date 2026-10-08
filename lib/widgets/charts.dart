@@ -104,6 +104,7 @@ class WeeklyBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!hasRecentExpenses) return const _WeeklyChartEmpty();
     return SizedBox(
+      width: double.infinity,
       height: height,
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
@@ -122,6 +123,7 @@ class _WeeklyChartEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const SizedBox(
+    width: double.infinity,
     height: 230,
     child: Center(
       child: Padding(
