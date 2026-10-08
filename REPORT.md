@@ -34,7 +34,7 @@ Ledgerly giải quyết việc nhập chi tiêu từ hóa đơn giấy cho sinh 
 | 9 | Part 2 routing and forms | ✅ Complete | GoRouter ShellRoute, guarded category query, receipt detail path, validation, focus traversal and future-date guard. |
 | 10 | Native platform channel | ✅ Complete | Battery bridge from Android Kotlin and iOS Swift to the Settings screen. |
 | 11 | Release and submission artifacts | ✅ Complete with signing note | APK, AAB, iOS Simulator build, technical PDF, demo script, LICENSE and CI workflow. Current local Android artifacts use debug certificate fallback until the student's private keystore is configured. |
-| 12 | Motion, splash and loading UX | ✅ Complete | Startup splash, staggered dashboard entry, animated scan/save states, local Lottie loader on mobile and lightweight CustomPainter fallback on Web. |
+| 12 | Motion, splash, loading and typography UX | ✅ Complete | Startup splash, staggered dashboard entry, animated scan/save states, local Lottie loader on mobile, lightweight CustomPainter fallback on Web, local Plus Jakarta Sans typography and an explicit 7-day chart empty state. |
 
 ## 3. Architecture & data flow
 
@@ -107,6 +107,7 @@ Ledgerly intentionally uses a tactile “pocket ledger” visual language instea
 - Light/dark screenshots are stored in `docs/screenshots/dashboard-light.png` and `docs/screenshots/dashboard-dark.png` and are included in the technical PDF.
 - Empty, loading, validation and unsupported-platform states have explicit UI feedback.
 - Motion is purposeful rather than decorative: the startup splash uses a short fade/scale entrance, dashboard sections enter with a restrained stagger, and async actions replace their icon/label with a clear loading state. `MediaQuery.disableAnimations` is respected for users who request reduced motion.
+- The app bundles Plus Jakarta Sans locally for consistent Vietnamese glyph rendering across Android, iOS and Web. Letter spacing and line height are intentionally relaxed in the splash, loading labels and navigation text so copy does not visually collide.
 
 ## 5. Technical challenges & resolutions
 
