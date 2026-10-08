@@ -85,15 +85,69 @@ class WeeklyBarChart extends StatelessWidget {
   const WeeklyBarChart({super.key, required this.receipts, this.height = 230});
   final List<Receipt> receipts;
   final double height;
+
+  bool get hasRecentExpenses {
+    final today = DateTime.now();
+    final start = DateTime(today.year, today.month, today.day);
+    return receipts.any((receipt) {
+      final receiptDay = DateTime(
+        receipt.date.year,
+        receipt.date.month,
+        receipt.date.day,
+      );
+      final diff = start.difference(receiptDay).inDays;
+      return diff >= 0 && diff < 7;
+    });
+  }
+
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: height,
-    child: TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 700),
-      curve: Curves.easeOutCubic,
-      builder: (_, progress, secondaryProgress) => CustomPaint(
-        painter: WeeklyBarPainter(receipts: receipts, progress: progress),
+  Widget build(BuildContext context) {
+    if (!hasRecentExpenses) return const _WeeklyChartEmpty();
+    return SizedBox(
+      height: height,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeOutCubic,
+        builder: (_, progress, secondaryProgress) => CustomPaint(
+          painter: WeeklyBarPainter(receipts: receipts, progress: progress),
+        ),
+      ),
+    );
+  }
+}
+
+class _WeeklyChartEmpty extends StatelessWidget {
+  const _WeeklyChartEmpty();
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+    height: 230,
+    child: Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.auto_graph_rounded, size: 34, color: AppColors.blue),
+            SizedBox(height: 12),
+            Text(
+              'Chưa có nhịp chi tiêu',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w800, height: 1.3),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Thêm một khoản chi trong 7 ngày qua để biểu đồ xuất hiện.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF77808C),
+                fontSize: 13,
+                height: 1.45,
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );

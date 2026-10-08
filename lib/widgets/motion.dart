@@ -80,19 +80,28 @@ class _LedgerlySplashState extends State<_LedgerlySplash>
       mainAxisSize: MainAxisSize.min,
       children: [
         RepaintBoundary(child: const _LedgerlyLoaderVisual(size: 170)),
-        const SizedBox(height: 10),
+        const SizedBox(height: 16),
         Text(
           'ledgerly',
           style: splashTheme.textTheme.displaySmall?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w900,
-            letterSpacing: -1.4,
+            fontSize: 34,
+            letterSpacing: -0.7,
+            height: 1.08,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 9),
         const Text(
           'Chi tiêu rõ ràng hơn mỗi ngày',
-          style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.1,
+            height: 1.45,
+          ),
         ),
       ],
     );
@@ -192,13 +201,16 @@ class LedgerlyLoading extends StatelessWidget {
     children: [
       RepaintBoundary(child: _LedgerlyLoaderVisual(size: size)),
       if (label != null) ...[
-        const SizedBox(height: 5),
+        const SizedBox(height: 10),
         Text(
           label!,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.05,
+            height: 1.35,
           ),
         ),
       ],
@@ -229,16 +241,17 @@ class _LedgerlyLoaderVisualState extends State<_LedgerlyLoaderVisual>
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
     if (!kIsWeb) {
       return Lottie.asset(
         'assets/animations/ledgerly_loader.json',
         width: widget.size,
         height: widget.size,
         repeat: true,
+        animate: !reduceMotion,
         frameRate: FrameRate.composition,
       );
     }
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
     return AnimatedBuilder(
       animation: _controller,
       builder: (_, child) => CustomPaint(

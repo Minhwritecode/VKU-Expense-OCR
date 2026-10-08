@@ -27,6 +27,7 @@ ThemeData _theme(Brightness brightness) {
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
+    fontFamily: 'LedgerlySans',
     colorScheme: scheme.copyWith(
       primary: dark ? const Color(0xFF87A5FF) : AppColors.blue,
       onPrimary: Colors.white,
@@ -73,14 +74,22 @@ ThemeData _theme(Brightness brightness) {
       useIndicator: true,
     ),
     textTheme: const TextTheme(
-      displaySmall: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -1.2),
-      headlineSmall: TextStyle(
+      displaySmall: TextStyle(
         fontWeight: FontWeight.w800,
         letterSpacing: -0.6,
+        height: 1.12,
       ),
-      titleLarge: TextStyle(fontWeight: FontWeight.w800),
-      titleMedium: TextStyle(fontWeight: FontWeight.w700),
-      bodyMedium: TextStyle(height: 1.35),
+      headlineSmall: TextStyle(
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.2,
+        height: 1.2,
+      ),
+      titleLarge: TextStyle(fontWeight: FontWeight.w800, height: 1.25),
+      titleMedium: TextStyle(fontWeight: FontWeight.w700, height: 1.3),
+      bodyLarge: TextStyle(height: 1.45),
+      bodyMedium: TextStyle(height: 1.5),
+      bodySmall: TextStyle(height: 1.4),
+      labelLarge: TextStyle(fontWeight: FontWeight.w700, height: 1.25),
     ),
   );
 }
