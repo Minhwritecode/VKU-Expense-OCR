@@ -101,18 +101,26 @@ class ReceiptsPage extends ConsumerWidget {
 }
 
 class ReceiptCard extends ConsumerWidget {
-  const ReceiptCard({super.key, required this.receipt, this.editable = false});
+  const ReceiptCard({
+    super.key,
+    required this.receipt,
+    this.editable = false,
+    this.onTap,
+  });
   final Receipt receipt;
   final bool editable;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final color = categoryColor(receipt.category);
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: editable && receipt.id != null
-            ? () => context.push('/receipts/${receipt.id}')
-            : null,
+        onTap:
+            onTap ??
+            (editable && receipt.id != null
+                ? () => context.push('/receipts/${receipt.id}')
+                : null),
         child: Padding(
           padding: const EdgeInsets.all(15),
           child: Row(

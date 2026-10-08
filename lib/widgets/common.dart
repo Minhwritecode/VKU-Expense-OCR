@@ -16,28 +16,50 @@ class _ChartCard extends StatelessWidget {
 }
 
 class _Pill extends StatelessWidget {
-  const _Pill({required this.label, required this.icon});
+  const _Pill({required this.label, required this.icon, this.onTap});
   final String label;
   final IconData icon;
+  final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-    decoration: BoxDecoration(
+  Widget build(BuildContext context) {
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          ),
+          if (onTap != null) ...[
+            const SizedBox(width: 4),
+            const Icon(Icons.expand_more_rounded, size: 16),
+          ],
+        ],
+      ),
+    );
+    final pill = Material(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-        ),
-      ],
-    ),
-  );
+      child: onTap == null
+          ? content
+          : InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(30),
+              child: content,
+            ),
+    );
+    return Semantics(
+      button: onTap != null,
+      label: onTap == null ? label : '$label. Chọn khoảng thời gian',
+      child: Tooltip(
+        message: onTap == null ? label : 'Chọn khoảng thời gian',
+        child: pill,
+      ),
+    );
+  }
 }
 
 class _Logo extends StatelessWidget {

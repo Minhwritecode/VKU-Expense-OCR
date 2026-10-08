@@ -1,9 +1,29 @@
 part of '../main.dart';
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  SpendingRange _range = SpendingRange.last7Days;
+
+  Future<void> _chooseRange() async {
+    final selected = await showModalBottomSheet<SpendingRange>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (context) => _RangePicker(selected: _range),
+    );
+    if (selected != null && selected != _range && mounted) {
+      setState(() => _range = selected);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final actions = LedgerlyActions.of(context);
     final state = ref.watch(receiptControllerProvider);
     final receipts = state.receipts;
@@ -54,6 +74,8 @@ class DashboardPage extends ConsumerWidget {
                     monthTotal: monthTotal,
                     total: total,
                     count: receipts.length,
+                    onCountTap: () => context.go('/receipts'),
+                    onTotalTap: () => context.go('/insights'),
                   );
                   final quickActions = _QuickActions(
                     onScan: actions.scan,
@@ -89,9 +111,10 @@ class DashboardPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Nhịp chi tiêu', style: theme.textTheme.headlineSmall),
-                  const _Pill(
-                    label: '7 ngày qua',
+                  _Pill(
+                    label: _range.label,
                     icon: Icons.calendar_today_rounded,
+                    onTap: _chooseRange,
                   ),
                 ],
               ),
@@ -99,7 +122,13 @@ class DashboardPage extends ConsumerWidget {
               // The chart already has its own value animation. Keeping the
               // card visible immediately prevents a partially faded chart
               // from looking like a blank loading column on first paint.
-              _ChartCard(child: WeeklyBarChart(receipts: receipts)),
+              _ChartCard(
+                child: WeeklyBarChart(
+                  receipts: receipts,
+                  range: _range,
+                  onEmptyAction: actions.manual,
+                ),
+              ),
               const SizedBox(height: 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -127,7 +156,14 @@ class DashboardPage extends ConsumerWidget {
                         delay: 240 + entry.key * 45,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: ReceiptCard(receipt: entry.value),
+                          child: ReceiptCard(
+                            receipt: entry.value,
+                            onTap: entry.value.id == null
+                                ? null
+                                : () => context.push(
+                                    '/receipts/${entry.value.id}',
+                                  ),
+                          ),
                         ),
                       ),
                     ),
@@ -151,10 +187,14 @@ class _SummaryCard extends StatelessWidget {
     required this.monthTotal,
     required this.total,
     required this.count,
+    required this.onCountTap,
+    required this.onTotalTap,
   });
   final double monthTotal;
   final double total;
   final int count;
+  final VoidCallback onCountTap;
+  final VoidCallback onTotalTap;
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(22),
@@ -215,11 +255,18 @@ class _SummaryCard extends StatelessWidget {
         const SizedBox(height: 18),
         Row(
           children: [
-            _MiniStat(label: '$count khoản', icon: Icons.receipt_long_rounded),
+            _MiniStat(
+              label: '$count khoản',
+              icon: Icons.receipt_long_rounded,
+              onTap: onCountTap,
+              tooltip: 'Mở sổ chi tiêu',
+            ),
             const SizedBox(width: 12),
             _MiniStat(
               label: 'Tổng ${formatVnd(total)}',
               icon: Icons.auto_graph_rounded,
+              onTap: onTotalTap,
+              tooltip: 'Mở phân tích chi tiêu',
             ),
           ],
         ),
@@ -229,27 +276,91 @@ class _SummaryCard extends StatelessWidget {
 }
 
 class _MiniStat extends StatelessWidget {
-  const _MiniStat({required this.label, required this.icon});
+  const _MiniStat({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    required this.tooltip,
+  });
   final String label;
   final IconData icon;
+  final VoidCallback onTap;
+  final String tooltip;
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-    decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: .12),
-      borderRadius: BorderRadius.circular(12),
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Semantics(
+      button: true,
+      label: '$label. $tooltip',
+      child: Material(
+        color: Colors.white.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: Colors.white70, size: 15),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     ),
-    child: Row(
+  );
+}
+
+class _RangePicker extends StatelessWidget {
+  const _RangePicker({required this.selected});
+  final SpendingRange selected;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
+    child: Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: Colors.white70, size: 15),
-        const SizedBox(width: 6),
+        Text('Khoảng thời gian', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 6),
         Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          'Chọn phạm vi để xem nhịp chi tiêu rõ hơn.',
+          style: Theme.of(context).textTheme.bodyMedium
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 12),
+        ...SpendingRange.values.map(
+          (range) => ListTile(
+            contentPadding: EdgeInsets.zero,
+            minTileHeight: 52,
+            leading: Icon(
+              range == selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_unchecked_rounded,
+              color: range == selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              range.label,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            onTap: () => Navigator.pop(context, range),
           ),
         ),
       ],
