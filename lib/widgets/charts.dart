@@ -176,12 +176,16 @@ class WeeklyBarPainter extends CustomPainter {
     final top = 12.0;
     final chartHeight = bottom - top;
     final grid = Paint()
-      ..color = const Color(0xFFE7E7E2)
+      ..color = const Color(0xFFDADDE3)
       ..strokeWidth = 1;
     for (var i = 0; i < 4; i++) {
       final y = top + chartHeight * i / 3;
       canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
     }
+    final baseline = Paint()
+      ..color = const Color(0xFFB8BEC8)
+      ..strokeWidth = 1.2;
+    canvas.drawLine(Offset(0, bottom), Offset(size.width, bottom), baseline);
     final barWidth = math.min(38.0, size.width / 10);
     final gap = (size.width - barWidth * 7) / 8;
     final labels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
@@ -198,17 +202,15 @@ class WeeklyBarPainter extends CustomPainter {
           ),
           const Radius.circular(10),
         ),
-        Paint()
-          ..color = i == 6
-              ? AppColors.orange
-              : AppColors.blue.withValues(alpha: .72),
+        Paint()..color = i == 6 ? AppColors.orange : AppColors.blue,
       );
       text.text = TextSpan(
         text: labels[i],
         style: const TextStyle(
-          fontSize: 11,
+          fontFamily: 'LedgerlySans',
+          fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF77808C),
+          color: Color(0xFF5E6875),
         ),
       );
       text.layout();

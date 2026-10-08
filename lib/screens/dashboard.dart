@@ -96,10 +96,10 @@ class DashboardPage extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              MotionFadeSlide(
-                delay: 180,
-                child: _ChartCard(child: WeeklyBarChart(receipts: receipts)),
-              ),
+              // The chart already has its own value animation. Keeping the
+              // card visible immediately prevents a partially faded chart
+              // from looking like a blank loading column on first paint.
+              _ChartCard(child: WeeklyBarChart(receipts: receipts)),
               const SizedBox(height: 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
