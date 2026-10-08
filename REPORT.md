@@ -3,11 +3,12 @@
 **Course:** Cross-Platform Mobile App Development (VKU)
 **Mini-Project Title:** Mini-Project 3: Ledgerly — Receipt OCR & Expense Tracker
 **Student:** Dinh Tran Tien Minh — 23IT162
-**Submission date:** 08/10/2026
+**Submission date:** 09/10/2026
 
 ## 1. General information & deliverables
 
 - **GitHub repository:** https://github.com/Minhwritecode/VKU-Expense-OCR
+- **Live web demo (Vercel):** https://vku-expense-ocr-michael.vercel.app
 - **Demo video:** Supplied separately by the student.
 - **Technical report PDF:** `output/pdf/ledgerly-technical-report-part2.pdf`
 - **Android APK:** `build/app/outputs/flutter-apk/app-release.apk`
@@ -33,6 +34,7 @@ Ledgerly giải quyết việc nhập chi tiêu từ hóa đơn giấy cho sinh 
 | 9 | Part 2 routing and forms | ✅ Complete | GoRouter ShellRoute, guarded category query, receipt detail path, validation, focus traversal and future-date guard. |
 | 10 | Native platform channel | ✅ Complete | Battery bridge from Android Kotlin and iOS Swift to the Settings screen. |
 | 11 | Release and submission artifacts | ✅ Complete with signing note | APK, AAB, iOS Simulator build, technical PDF, demo script, LICENSE and CI workflow. Current local Android artifacts use debug certificate fallback until the student's private keystore is configured. |
+| 12 | Motion, splash and loading UX | ✅ Complete | Startup splash, staggered dashboard entry, animated scan/save states, local Lottie loader on mobile and lightweight CustomPainter fallback on Web. |
 
 ## 3. Architecture & data flow
 
@@ -104,6 +106,7 @@ Ledgerly intentionally uses a tactile “pocket ledger” visual language instea
 - Wide layouts use a NavigationRail and a larger content constraint; compact layouts use NavigationBar.
 - Light/dark screenshots are stored in `docs/screenshots/dashboard-light.png` and `docs/screenshots/dashboard-dark.png` and are included in the technical PDF.
 - Empty, loading, validation and unsupported-platform states have explicit UI feedback.
+- Motion is purposeful rather than decorative: the startup splash uses a short fade/scale entrance, dashboard sections enter with a restrained stagger, and async actions replace their icon/label with a clear loading state. `MediaQuery.disableAnimations` is respected for users who request reduced motion.
 
 ## 5. Technical challenges & resolutions
 
@@ -142,6 +145,7 @@ flutter test
 flutter build apk --release --no-pub
 flutter build appbundle --release --no-pub
 flutter build ios --simulator --no-codesign --no-pub
+flutter build web --release --no-pub
 ```
 
 Results:
@@ -152,6 +156,7 @@ Results:
 - Android AAB: **built successfully**.
 - iOS Simulator `.app`: **built successfully**.
 - iPhone 15 Pro Max Simulator: **runtime launch verified**.
+- Flutter Web release: **built successfully and deployed to Vercel**.
 - Physical phone smoke test: **confirmed by the student**.
 - Demo video and GitHub repository: **supplied by the student**.
 
@@ -182,9 +187,23 @@ flutter build ipa --release
 
 The Simulator `.app` is for local testing only. TestFlight/App Store requires an IPA signed by an Apple Developer account. Creating an Android keystore is free; Google Play and Apple Developer account fees are separate store-distribution costs.
 
+### Web / Vercel
+
+The Flutter Web release is deployed as a static build with Vercel:
+
+```bash
+flutter build web --release
+npx vercel deploy build/web --prod
+```
+
+Live URL: **https://vku-expense-ocr-michael.vercel.app**
+
+The Vercel project is named `vku-expense-ocr-michael` and serves the generated `build/web` directory. The current Vercel workspace may have Deployment Protection enabled; disable Vercel Authentication in the project settings when anonymous public access is required.
+
 ## 8. Known limitations
 
 - OCR currently uses the Latin ML Kit model, so unusual layouts, blurred images and non-Latin text may need manual correction.
 - The local Android release artifact is verified with APK v2 signing but uses the Android Debug certificate until the developer's private upload key is configured.
 - The app is offline-first and local-only; cloud synchronization and multi-user account management are outside Mini-Project 3 scope.
 - The iOS build currently uses CocoaPods for ML Kit because those plugins do not yet provide Swift Package Manager support.
+- The Web build can display the responsive UI and local visualizations, but on-device ML Kit OCR remains an Android/iOS capability; the primary OCR workflow should therefore be demonstrated on a physical phone or simulator.

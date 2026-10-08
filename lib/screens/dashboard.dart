@@ -20,29 +20,31 @@ class DashboardPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _greeting(),
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+              MotionFadeSlide(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _greeting(),
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Sổ chi tiêu của bạn',
-                          style: theme.textTheme.displaySmall,
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            'Sổ chi tiêu của bạn',
+                            style: theme.textTheme.displaySmall,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  const _Logo(),
-                ],
+                    const SizedBox(width: 14),
+                    const _Logo(),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               LayoutBuilder(
@@ -61,16 +63,23 @@ class DashboardPage extends ConsumerWidget {
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: summary),
+                            Expanded(
+                              child: MotionFadeSlide(delay: 70, child: summary),
+                            ),
                             const SizedBox(width: 16),
-                            Expanded(child: quickActions),
+                            Expanded(
+                              child: MotionFadeSlide(
+                                delay: 120,
+                                child: quickActions,
+                              ),
+                            ),
                           ],
                         )
                       : Column(
                           children: [
-                            summary,
+                            MotionFadeSlide(delay: 70, child: summary),
                             const SizedBox(height: 16),
-                            quickActions,
+                            MotionFadeSlide(delay: 120, child: quickActions),
                           ],
                         );
                 },
@@ -87,7 +96,10 @@ class DashboardPage extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              _ChartCard(child: WeeklyBarChart(receipts: receipts)),
+              MotionFadeSlide(
+                delay: 180,
+                child: _ChartCard(child: WeeklyBarChart(receipts: receipts)),
+              ),
               const SizedBox(height: 28),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -107,10 +119,16 @@ class DashboardPage extends ConsumerWidget {
               else
                 ...receipts
                     .take(4)
+                    .toList()
+                    .asMap()
+                    .entries
                     .map(
-                      (receipt) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: ReceiptCard(receipt: receipt),
+                      (entry) => MotionFadeSlide(
+                        delay: 240 + entry.key * 45,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: ReceiptCard(receipt: entry.value),
+                        ),
                       ),
                     ),
             ],

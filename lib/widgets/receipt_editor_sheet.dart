@@ -230,10 +230,10 @@ class _ReceiptEditorSheetState extends State<ReceiptEditorSheet> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
+                child: AsyncLoadingButton(
                   onPressed: _save,
-                  icon: const Icon(Icons.check_rounded),
-                  label: Text(editing ? 'Lưu thay đổi' : 'Lưu vào sổ'),
+                  icon: Icons.check_rounded,
+                  label: editing ? 'Lưu thay đổi' : 'Lưu vào sổ',
                 ),
               ),
             ],
@@ -253,7 +253,7 @@ class _ReceiptEditorSheetState extends State<ReceiptEditorSheet> {
     if (picked != null) setState(() => _date = picked);
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final amount = parseVndInput(_amount.text);
     if (amount == null) return;

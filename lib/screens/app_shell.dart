@@ -45,6 +45,7 @@ class LedgerlyActions extends InheritedWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   final _ocr = OcrService();
   final _titles = const ['Tổng quan', 'Sổ chi tiêu', 'Phân tích', 'Cài đặt'];
+  bool _scanning = false;
 
   int get _index {
     final path = GoRouterState.of(context).uri.path;
@@ -66,6 +67,8 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   Future<void> _scan(ImageSource source) async {
+    if (_scanning) return;
+    setState(() => _scanning = true);
     final messenger = ScaffoldMessenger.of(context);
     try {
       final parsed = await _ocr.scan(source);
@@ -91,6 +94,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           SnackBar(content: Text('Không thể đọc ảnh: $error')),
         );
       }
+    } finally {
+      if (mounted) setState(() => _scanning = false);
     }
   }
 
@@ -140,9 +145,33 @@ class _AppShellState extends ConsumerState<AppShell> {
             body: widget.child,
             floatingActionButton: index == 0
                 ? FloatingActionButton.extended(
-                    onPressed: () => _scan(ImageSource.camera),
-                    icon: const Icon(Icons.document_scanner_rounded),
-                    label: const Text('Quét hóa đơn'),
+                    onPressed: _scanning
+                        ? null
+                        : () => _scan(ImageSource.camera),
+                    icon: AnimatedSwitcher(
+                      duration: MotionTokens.fast,
+                      child: _scanning
+                          ? const SizedBox(
+                              key: ValueKey('fab-loading'),
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.document_scanner_rounded,
+                              key: ValueKey('fab-scan'),
+                            ),
+                    ),
+                    label: AnimatedSwitcher(
+                      duration: MotionTokens.fast,
+                      child: Text(
+                        _scanning ? 'Đang đọc…' : 'Quét hóa đơn',
+                        key: ValueKey(_scanning),
+                      ),
+                    ),
                   )
                 : null,
             bottomNavigationBar: wide

@@ -72,8 +72,14 @@ class _Logo extends StatelessWidget {
 class _LoadingList extends StatelessWidget {
   const _LoadingList();
   @override
-  Widget build(BuildContext context) =>
-      const Column(children: [LinearProgressIndicator(), SizedBox(height: 18)]);
+  Widget build(BuildContext context) => const Card(
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: Center(
+        child: LedgerlyLoading(size: 54, label: 'Đang tải sổ chi tiêu'),
+      ),
+    ),
+  );
 }
 
 class _EmptyState extends StatelessWidget {
