@@ -1,0 +1,334 @@
+part of '../main.dart';
+
+class DashboardPage extends ConsumerWidget {
+  const DashboardPage({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final actions = LedgerlyActions.of(context);
+    final state = ref.watch(receiptControllerProvider);
+    final receipts = state.receipts;
+    final total = receipts.fold<double>(0, (sum, item) => sum + item.amount);
+    final monthTotal = receipts
+        .where((item) => item.date.month == DateTime.now().month)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 26, 24, 110),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _greeting(),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Sổ chi tiêu của bạn',
+                          style: theme.textTheme.displaySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  const _Logo(),
+                ],
+              ),
+              const SizedBox(height: 24),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final twoColumns = constraints.maxWidth > 670;
+                  final summary = _SummaryCard(
+                    monthTotal: monthTotal,
+                    total: total,
+                    count: receipts.length,
+                  );
+                  final quickActions = _QuickActions(
+                    onScan: actions.scan,
+                    onManual: actions.manual,
+                  );
+                  return twoColumns
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: summary),
+                            const SizedBox(width: 16),
+                            Expanded(child: quickActions),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            summary,
+                            const SizedBox(height: 16),
+                            quickActions,
+                          ],
+                        );
+                },
+              ),
+              const SizedBox(height: 28),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Nhịp chi tiêu', style: theme.textTheme.headlineSmall),
+                  const _Pill(
+                    label: '7 ngày qua',
+                    icon: Icons.calendar_today_rounded,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _ChartCard(child: WeeklyBarChart(receipts: receipts)),
+              const SizedBox(height: 28),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Gần đây', style: theme.textTheme.headlineSmall),
+                  TextButton(
+                    onPressed: () => context.go('/receipts'),
+                    child: const Text('Xem tất cả'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              if (state.loading)
+                const _LoadingList()
+              else if (receipts.isEmpty)
+                const _EmptyState()
+              else
+                ...receipts
+                    .take(4)
+                    .map(
+                      (receipt) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: ReceiptCard(receipt: receipt),
+                      ),
+                    ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _greeting() {
+  final hour = DateTime.now().hour;
+  if (hour < 11) return 'Chào buổi sáng ☀️';
+  if (hour < 18) return 'Chào buổi chiều';
+  return 'Chào buổi tối 🌙';
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.monthTotal,
+    required this.total,
+    required this.count,
+  });
+  final double monthTotal;
+  final double total;
+  final int count;
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(22),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(26),
+      gradient: const LinearGradient(
+        colors: [AppColors.blue, AppColors.blueDark],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.blue.withValues(alpha: .22),
+          blurRadius: 20,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'TỔNG THÁNG NÀY',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .14),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.savings_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          formatVnd(monthTotal),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 31,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            _MiniStat(label: '$count khoản', icon: Icons.receipt_long_rounded),
+            const SizedBox(width: 12),
+            _MiniStat(
+              label: 'Tổng ${formatVnd(total)}',
+              icon: Icons.auto_graph_rounded,
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.label, required this.icon});
+  final String label;
+  final IconData icon;
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.white70, size: 15),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions({required this.onScan, required this.onManual});
+  final Future<void> Function(ImageSource) onScan;
+  final Future<void> Function() onManual;
+  @override
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Ghi lại trong 10 giây',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 5),
+          Text(
+            'Chụp hóa đơn, để Ledgerly làm phần còn lại.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _ActionTile(
+                  icon: Icons.camera_alt_rounded,
+                  label: 'Chụp ảnh',
+                  color: AppColors.orange,
+                  onTap: () => onScan(ImageSource.camera),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ActionTile(
+                  icon: Icons.photo_library_rounded,
+                  label: 'Thư viện',
+                  color: AppColors.lavender,
+                  onTap: () => onScan(ImageSource.gallery),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ActionTile(
+                  icon: Icons.edit_note_rounded,
+                  label: 'Nhập tay',
+                  color: AppColors.mint,
+                  onTap: onManual,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => Material(
+    color: color.withValues(alpha: .13),
+    borderRadius: BorderRadius.circular(17),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(17),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 13),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 23),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
