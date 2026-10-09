@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Ledgerly logo</title>
+  <desc id="desc">A receipt with a rising spending line inside a blue rounded square.</desc>
+  <defs>
+    <linearGradient id="ledgerlyBlue" x1="72" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3867F0"/>
+      <stop offset="1" stop-color="#2045B5"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#0B2470" flood-opacity=".24"/>
+    </filter>
+  </defs>
+  <rect x="24" y="24" width="464" height="464" rx="128" fill="url(#ledgerlyBlue)"/>
+  <circle cx="394" cy="118" r="22" fill="#F08A4B"/>
+  <path d="M143 118a24 24 0 0 1 24-24h151l51 51v248a24 24 0 0 1-24 24H167a24 24 0 0 1-24-24z" fill="#FFFDF8" filter="url(#shadow)"/>
+  <path d="M318 94v51h51" fill="#E9EDF8"/>
+  <path d="M318 94v51h51" fill="none" stroke="#D9E0F2" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M193 184h126M193 224h92" fill="none" stroke="#2F5BEA" stroke-width="16" stroke-linecap="round"/>
+  <path d="M187 323l43-38 38 18 57-68" fill="none" stroke="#F08A4B" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="187" cy="323" r="9" fill="#F08A4B"/>
+  <circle cx="325" cy="235" r="9" fill="#F08A4B"/>
+</svg>

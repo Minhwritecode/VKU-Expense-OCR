@@ -1,11 +1,11 @@
 {
-    "name": "vku_expense_ocr",
-    "short_name": "vku_expense_ocr",
+    "name": "Ledgerly — Sổ chi tiêu",
+    "short_name": "Ledgerly",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F8F6F0",
+    "theme_color": "#2F5BEA",
+    "description": "Sổ chi tiêu offline với OCR hóa đơn.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

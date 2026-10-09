@@ -69,14 +69,10 @@ class _Logo extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Container(
+      SizedBox(
         width: compact ? 37 : 42,
         height: compact ? 37 : 42,
-        decoration: BoxDecoration(
-          color: AppColors.blue,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: const Icon(Icons.receipt_long_rounded, color: Colors.white),
+        child: CustomPaint(painter: _LedgerlyMarkPainter()),
       ),
       if (!compact) ...[
         const SizedBox(width: 9),
@@ -93,6 +89,89 @@ class _Logo extends StatelessWidget {
       ],
     ],
   );
+}
+
+class _LedgerlyMarkPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scale = size.shortestSide / 512;
+    canvas.save();
+    canvas.scale(scale);
+
+    final background = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFF3867F0), Color(0xFF2045B5)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(const Rect.fromLTWH(24, 24, 464, 464));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTWH(24, 24, 464, 464),
+        const Radius.circular(128),
+      ),
+      background,
+    );
+
+    canvas.drawCircle(
+      const Offset(394, 118),
+      22,
+      Paint()..color = AppColors.orange,
+    );
+    final paper = Path()
+      ..moveTo(167, 94)
+      ..lineTo(318, 94)
+      ..lineTo(369, 145)
+      ..lineTo(369, 393)
+      ..quadraticBezierTo(369, 417, 345, 417)
+      ..lineTo(167, 417)
+      ..quadraticBezierTo(143, 417, 143, 393)
+      ..lineTo(143, 118)
+      ..quadraticBezierTo(143, 94, 167, 94)
+      ..close();
+    canvas.drawShadow(paper, const Color(0x440B2470), 14, true);
+    canvas.drawPath(paper, Paint()..color = AppColors.paper);
+
+    final fold = Path()
+      ..moveTo(318, 94)
+      ..lineTo(318, 145)
+      ..lineTo(369, 145)
+      ..close();
+    canvas.drawPath(fold, Paint()..color = const Color(0xFFE9EDF8));
+    canvas.drawPath(
+      fold,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 8
+        ..color = const Color(0xFFD9E0F2),
+    );
+
+    final blueLine = Paint()
+      ..color = AppColors.blue
+      ..strokeWidth = 16
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(const Offset(193, 184), const Offset(319, 184), blueLine);
+    canvas.drawLine(const Offset(193, 224), const Offset(285, 224), blueLine);
+
+    final trend = Paint()
+      ..color = AppColors.orange
+      ..strokeWidth = 18
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+    final trendPath = Path()
+      ..moveTo(187, 323)
+      ..lineTo(230, 285)
+      ..lineTo(268, 303)
+      ..lineTo(325, 235);
+    canvas.drawPath(trendPath, trend);
+    final dot = Paint()..color = AppColors.orange;
+    canvas.drawCircle(const Offset(187, 323), 9, dot);
+    canvas.drawCircle(const Offset(325, 235), 9, dot);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _LedgerlyMarkPainter oldDelegate) => false;
 }
 
 class _LoadingList extends StatelessWidget {

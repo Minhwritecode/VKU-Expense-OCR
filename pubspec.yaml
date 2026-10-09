@@ -67,6 +67,7 @@ flutter:
 
   assets:
     - assets/animations/ledgerly_loader.json
+    - assets/brand/ledgerly_logo.svg
 
   fonts:
     - family: LedgerlySans
